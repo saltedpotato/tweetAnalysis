@@ -40,16 +40,16 @@ class TweetAnalyzer():
 
         return df
 
-    def classify_data(self, track_data, tweets):
+    def classify_data(self, tweets):
         classfied_data = {}
-        for data in track_data:
-            classfied_data[data] = 0
 
         for tweet in tweets:
-            text = tweet["text"]
-            for word in text:
-                if word.lower() in track_data:
-                    classfied_data[word] += 1
+            if tweet["place"] is not None:
+                place = tweet["place"]["full_name"]
+                if place in classfied_data:
+                    classfied_data[place] += 1
+                else:
+                    classfied_data[place] = 1
         return classfied_data
 
 
@@ -72,10 +72,14 @@ if __name__ == "__main__":
     # time_likes.plot(figsize=(16, 4), label="likes", legend=True)
     # time_retweet = pd.Series(data=df['retweets'].values, index=df['date'])
     # time_retweet.plot(figsize=(16, 4), label="rewteets", legend=True)
-    # plt.show()
 
+    data = tweet_analyzer.classify_data(tweets)
+    plt.bar(range(len(data)), list(data.values()), align='center')
+    plt.xticks(range(len(data)), list(data.keys()))
+    plt.show()
     '''
     sentiment analysis
     '''
-    df['sentiment'] = np.array([tweet_analyzer.analyse_sentiment(tweet) for tweet in df['tweets']])
+    df['sentiment'] = np.array(
+        [tweet_analyzer.analyse_sentiment(tweet) for tweet in df['tweets']])
     print(df.head(10))
